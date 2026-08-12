@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: prior-art-tool
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PATENTSVIEW_API_KEY
+        sync: false
+      - key: EPO_OPS_KEY
+        sync: false
+      - key: EPO_OPS_SECRET
+        sync: false
+      - key: SEMANTIC_SCHOLAR_API_KEY
+        sync: false

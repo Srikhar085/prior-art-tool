@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Check prior art for a patent idea</h1>
+  <p class="subtitle">
+    Describe the idea below. We'll search patent databases and academic
+    literature and rank the results by textual similarity (no AI-generated
+    conclusions — you review the matches yourself).
+  </p>
+
+  <form method="post" action="/search" id="search-form">
+    <label for="title">Idea title</label>
+    <input type="text" id="title" name="title" required
+           placeholder="e.g. Self-cleaning solar panel coating" />
+
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="8"
+              placeholder="Describe how it works, what problem it solves, and key technical details..."></textarea>
+
+    <button type="submit">Search prior art</button>
+  </form>
+
+  <section class="source-status">
+    <h2>Configured sources</h2>
+    <ul>
+      {% for source, enabled in source_status.items() %}
+        <li class="{{ 'enabled' if enabled else 'disabled' }}">
+          {{ source }} — {{ "enabled" if enabled else "not configured (see .env)" }}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <script>
+    document.getElementById('search-form').addEventListener('submit', function () {
+      var btn = this.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Searching...';
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+  <a class="back-link" href="/">&larr; New search</a>
+  <h1>Results for: {{ title }}</h1>
+  {% if description %}<p class="idea-description">{{ description }}</p>{% endif %}
+
+  {% set ok_results = results | rejectattr('error') | list %}
+  {% set errored = results | selectattr('error') | list %}
+
+  <p class="result-count">{{ ok_results | length }} result(s), ranked by similarity to your idea.</p>
+
+  {% if errored %}
+    <div class="errors">
+      {% for r in errored %}
+        <p class="error-item">{{ r.error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not ok_results %}
+    <p class="empty">No results found (or no sources are configured — check .env).</p>
+  {% endif %}
+
+  <ul class="results">
+    {% for r in ok_results %}
+      <li class="result-card">
+        <div class="result-header">
+          <span class="badge badge-{{ r.kind }}">{{ r.source }}</span>
+          <span class="score">similarity: {{ "%.0f"|format(r.score * 100) }}%</span>
+        </div>
+        <h3>
+          {% if r.url %}<a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">{{ r.title or r.external_id }}</a>
+          {% else %}{{ r.title or r.external_id }}{% endif %}
+        </h3>
+        {% if r.date %}<p class="date">{{ r.date }}</p>{% endif %}
+        <p class="snippet">{{ r.snippet[:500] }}{% if r.snippet|length > 500 %}...{% endif %}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
