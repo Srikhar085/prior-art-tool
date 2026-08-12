@@ -10,14 +10,24 @@ from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 from . import config
+from .auth import BasicAuthMiddleware, warn_if_unprotected
 from .similarity import rank_results
 from .sources import epo_ops, patentsview, semantic_scholar
 
 app = FastAPI(title="Prior Art Tool")
+app.add_middleware(BasicAuthMiddleware)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+warn_if_unprotected()
+
+
+class SearchRequest(BaseModel):
+    title: str
+    description: str = ""
+
 
 SOURCE_STATUS = {
     "PatentsView (US patents)": bool(config.PATENTSVIEW_API_KEY),
@@ -60,10 +70,14 @@ async def search(request: Request, title: str = Form(...), description: str = Fo
     )
 
 
-@app.get("/api/search")
-async def api_search(title: str, description: str = ""):
-    """JSON API: GET /api/search?title=...&description=..."""
-    query = f"{title} {description}".strip()
+@app.post("/api/search")
+async def api_search(payload: SearchRequest):
+    """JSON API: POST /api/search with a {"title": ..., "description": ...} body.
+
+    Deliberately a POST with a JSON body (not GET with query params) so idea
+    text never ends up in a URL, browser history, or access log line.
+    """
+    query = f"{payload.title} {payload.description}".strip()
     ranked = await run_search(query)
     return {"query": query, "count": len(ranked), "results": [vars(r) for r in ranked]}
 

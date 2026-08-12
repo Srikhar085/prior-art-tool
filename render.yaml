@@ -7,6 +7,8 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: APP_USERS
+        sync: false
       - key: PATENTSVIEW_API_KEY
         sync: false
       - key: EPO_OPS_KEY
