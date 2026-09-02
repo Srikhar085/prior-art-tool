@@ -23,7 +23,10 @@ APP_PASSWORD = os.getenv("APP_PASSWORD", "").strip()
 # password is never typed into or stored in this file/repo) and only their
 # own "email:hash" entry gets appended here — nobody else's password is ever
 # visible to them.
-APP_USERS = {}
+APP_USERS = {
+    "patnaikuni.srikhar@bmwtechworks.in": "$2b$12$QN9diR.gQ/yVqRtkYOI4cOtr4p0rKhQllhI8trb2KICxiX1HYwiQK",
+    "abhishek.dr@bmwtechworks.in": "$2b$12$uqfhaGbPAACY7tduo8hqRecUSOzHmW6WSCArDid.GIGE4hIPWzfzW"
+}
 for _entry in os.getenv("APP_USERS", "").split(","):
     _entry = _entry.strip()
     if not _entry or ":" not in _entry:
