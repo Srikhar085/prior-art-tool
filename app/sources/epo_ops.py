@@ -62,6 +62,10 @@ async def search(query: str, limit: int = None) -> list[SearchResult]:
                     "Accept": "application/json",
                 },
             )
+            # EPO OPS returns 404 (not an empty 200) when a search matches zero
+            # results — treat that as "no results" rather than a failure.
+            if resp.status_code == 404:
+                return []
             resp.raise_for_status()
             data = resp.json()
     except Exception as exc:  # noqa: BLE001 - soft error, don't crash the whole search
