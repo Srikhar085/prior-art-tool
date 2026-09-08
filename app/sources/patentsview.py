@@ -6,6 +6,7 @@ Requires a free API key (PATENTSVIEW_API_KEY) sent as the 'X-Api-Key' header.
 import httpx
 
 from .. import config
+from ..query_expansion import expand_query
 from .base import SearchResult
 
 SEARCH_URL = "https://search.patentsview.org/api/v1/patent/"
@@ -16,10 +17,13 @@ async def search(query: str, limit: int = None) -> list[SearchResult]:
         return []
 
     limit = limit or config.RESULTS_PER_SOURCE
+    # Synonym-expanded so a patent worded differently from the idea can still
+    # match _text_any's any-of-these-words search.
+    expanded_query = expand_query(query)
     params = {
         "q": (
             '{"_or":[{"_text_any":{"patent_title":"%s"}},'
-            '{"_text_any":{"patent_abstract":"%s"}}]}' % (query, query)
+            '{"_text_any":{"patent_abstract":"%s"}}]}' % (expanded_query, expanded_query)
         ),
         "f": '["patent_id","patent_title","patent_abstract","patent_date"]',
         "o": '{"size":%d}' % limit,

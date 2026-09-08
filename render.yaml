@@ -4,10 +4,12 @@ services:
     env: python
     plan: free
     region: singapore
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python -m nltk.downloader -d ./nltk_data wordnet omw-1.4
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: NLTK_DATA
+        value: ./nltk_data
       - key: APP_USERS
         sync: false
       - key: PATENTSVIEW_API_KEY

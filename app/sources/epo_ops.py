@@ -9,6 +9,7 @@ import base64
 import httpx
 
 from .. import config
+from ..query_expansion import expand_query
 from .base import SearchResult
 
 TOKEN_URL = "https://ops.epo.org/3.2/auth/accesstoken"
@@ -49,7 +50,11 @@ async def search(query: str, limit: int = None) -> list[SearchResult]:
         return []
 
     limit = limit or config.RESULTS_PER_SOURCE
-    cql = f'ti="{query}" or ab="{query}"'
+    # Exact-phrase match (precise) OR'd with an all-words-any-order match on
+    # a synonym-expanded query (broader recall) — an idea worded differently
+    # from a patent's title/abstract can still be found.
+    expanded = expand_query(query)
+    cql = f'ti="{query}" or ab="{query}" or ti all "{expanded}" or ab all "{expanded}"'
 
     try:
         async with httpx.AsyncClient(timeout=20) as client:
