@@ -1,8 +1,10 @@
 # Prior Art Tool
 
 Search patent databases and academic literature for prior art related to a
-patent idea, and rank the combined results by TF-IDF text similarity to the
-idea description. No LLM is used — matches are surfaced for you to review.
+patent idea, and rank the combined results by their semantic similarity to
+the idea description. No LLM and no external AI service is used — all
+matching happens locally with classic, deterministic NLP techniques, and
+results are surfaced for you to review, not auto-judged.
 
 Built to keep unfiled ideas confidential: the app stores nothing (no
 database — each search happens in memory and is discarded after the
@@ -43,6 +45,25 @@ Next time, you only need: `source .venv/bin/activate` then
 
 Sources without a configured key are skipped automatically — the app still
 runs with just Semantic Scholar out of the box.
+
+## Matching & ranking
+
+Two local, deterministic techniques improve on plain keyword search, without
+adding any LLM, external AI API, or new privacy exposure (nothing here sends
+data anywhere new or stores anything):
+
+- **Query expansion (WordNet synonyms).** Before searching, each query is
+  broadened with a few close synonyms from
+  [WordNet](https://wordnet.princeton.edu/) (via `nltk`), so an idea worded
+  differently from a patent's title/abstract can still be found. This runs
+  entirely offline — the WordNet corpus is downloaded once at build time,
+  never at request time.
+- **Semantic similarity (TF-IDF + LSA).** Results are ranked by a blend of
+  TF-IDF cosine similarity and Latent Semantic Analysis (LSA, via
+  `TruncatedSVD`), which captures related concepts/terms rather than only
+  exact word overlap. This is a classical, explainable ML technique — not a
+  neural network or LLM — chosen specifically to stay lightweight enough for
+  Render's free tier.
 
 ## Privacy & security
 
