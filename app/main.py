@@ -44,7 +44,9 @@ async def run_search(query: str) -> list:
     ]
     results_per_source = await asyncio.gather(*tasks)
     combined = [r for sub in results_per_source for r in sub]
-    return rank_results(query, combined)
+    # Ranking is CPU-bound (TF-IDF + LSA); run it in a worker thread so it
+    # doesn't block the event loop from handling other concurrent requests.
+    return await asyncio.to_thread(rank_results, query, combined)
 
 
 @app.get("/", response_class=HTMLResponse)

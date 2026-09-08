@@ -5,6 +5,7 @@ Requires a free consumer key/secret (EPO_OPS_KEY / EPO_OPS_SECRET) exchanged
 for a short-lived OAuth2 access token.
 """
 import base64
+import time
 
 import httpx
 
@@ -15,8 +16,17 @@ from .base import SearchResult
 TOKEN_URL = "https://ops.epo.org/3.2/auth/accesstoken"
 SEARCH_URL = "https://ops.epo.org/3.2/rest-services/published-data/search/biblio"
 
+# EPO access tokens are valid ~20 minutes; cache in memory (per process) so
+# every search doesn't pay for an extra token-exchange round trip. This is
+# just an OAuth token, not idea text, so caching it has no privacy impact.
+_token_cache = {"token": None, "expires_at": 0.0}
+
 
 async def _get_access_token(client: httpx.AsyncClient) -> str:
+    now = time.monotonic()
+    if _token_cache["token"] and now < _token_cache["expires_at"]:
+        return _token_cache["token"]
+
     credentials = base64.b64encode(
         f"{config.EPO_OPS_KEY}:{config.EPO_OPS_SECRET}".encode()
     ).decode()
@@ -29,7 +39,12 @@ async def _get_access_token(client: httpx.AsyncClient) -> str:
         data={"grant_type": "client_credentials"},
     )
     resp.raise_for_status()
-    return resp.json()["access_token"]
+    data = resp.json()
+    token = data["access_token"]
+    expires_in = int(data.get("expires_in", 1200))
+    _token_cache["token"] = token
+    _token_cache["expires_at"] = now + expires_in - 60  # refresh a bit early
+    return token
 
 
 def _text(node) -> str:
