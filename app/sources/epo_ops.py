@@ -110,7 +110,10 @@ async def search(query: str, limit: int = None) -> list[SearchResult]:
                 external_id=pub_number,
                 title=title,
                 snippet=abstract,
-                url=f"https://worldwide.espacenet.com/patent/search/family/publication/{pub_number}"
+                # Google Patents indexes EPO publications and opens straight to the
+                # full document (description, claims, drawings) in one click, unlike
+                # Espacenet's multi-step search/family page.
+                url=f"https://patents.google.com/patent/{pub_number}"
                     if pub_number else "",
             ))
     except Exception as exc:  # noqa: BLE001 - EPO's response shape varies; degrade gracefully

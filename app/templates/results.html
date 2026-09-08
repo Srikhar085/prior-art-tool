@@ -32,6 +32,7 @@
           {% if r.url %}<a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">{{ r.title or r.external_id }}</a>
           {% else %}{{ r.title or r.external_id }}{% endif %}
         </h3>
+        {% if r.kind == "patent" and r.external_id %}<p class="patent-id">Patent ID: {{ r.external_id }}</p>{% endif %}
         {% if r.date %}<p class="date">{{ r.date }}</p>{% endif %}
         <p class="snippet">{{ r.snippet[:500] }}{% if r.snippet|length > 500 %}...{% endif %}</p>
       </li>
