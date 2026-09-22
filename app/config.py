@@ -25,7 +25,8 @@ APP_PASSWORD = os.getenv("APP_PASSWORD", "").strip()
 # visible to them.
 APP_USERS = {
     "patnaikuni.srikhar@bmwtechworks.in": "$2b$12$QN9diR.gQ/yVqRtkYOI4cOtr4p0rKhQllhI8trb2KICxiX1HYwiQK",
-    "abhishek.dr@bmwtechworks.in": "$2b$12$uqfhaGbPAACY7tduo8hqRecUSOzHmW6WSCArDid.GIGE4hIPWzfzW"
+    "abhishek.dr@bmwtechworks.in": "$2b$12$uqfhaGbPAACY7tduo8hqRecUSOzHmW6WSCArDid.GIGE4hIPWzfzW",
+    "eranki.venkatashashanka@bmwtechworks.in": "$2b$12$Ua1tBBHDtPD7Yj7JLeHTBOsqxY/jOHLVUPBynxZ.MdPkAVoF0c1tG"
 }
 for _entry in os.getenv("APP_USERS", "").split(","):
     _entry = _entry.strip()
